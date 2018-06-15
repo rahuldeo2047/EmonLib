@@ -198,9 +198,48 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
     sqI = filteredI * filteredI;
     // 2) sum
     sumI += sqI;
+  }
+
+  double I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
+  Irms = I_RATIO * sqrt(sumI / Number_of_Samples);
+
+  //Reset accumulators
+  sumI = 0;
+  //--------------------------------------------------------------------------------------
+
+  return Irms;
+}
+
+//--------------------------------------------------------------------------------------
+double EnergyMonitor::calcIrmsTime(unsigned int Time_of_Samples)
+{
+
+  #if defined emonTxV3
+    int SupplyVoltage=3300;
+  #else
+    int SupplyVoltage = readVcc();
+  #endif
+
+  unsigned int Number_of_Samples = 0;
+  unsigned long last_time= millis();
+  while (millis()-last_time < Time_of_Samples)// unsigned int n = 0; n < Number_of_Samples; n++)
+  {
+    sampleI = analogRead(inPinI);
+    Number_of_Samples++;
+
+    // Digital low pass filter extracts the 2.5 V or 1.65 V dc offset,
+    //  then subtract this - signal is now centered on 0 counts.
+    offsetI = (offsetI + (sampleI-offsetI)/1024);
+    filteredI = sampleI - offsetI;
+
+    // Root-mean-square method current
+    // 1) square current values
+    sqI = filteredI * filteredI;
+    // 2) sum
+    sumI += sqI;
 
     // https://github.com/esp8266/Arduino/issues/1634
-    delay(3); // It can mess with the data
+    //delay(3); // It can mess with the data
     yield();
   }
 
@@ -213,6 +252,7 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
 
   return Irms;
 }
+
 
 void EnergyMonitor::serialprint()
 {

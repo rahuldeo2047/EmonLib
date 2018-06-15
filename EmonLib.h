@@ -54,6 +54,7 @@ class EnergyMonitor
 
     void calcVI(unsigned int crossings, unsigned int timeout);
     double calcIrms(unsigned int NUMBER_OF_SAMPLES);
+    double calcIrmsTime(unsigned int Time_of_Samples); // Experimental
     void serialprint();
 
     long readVcc();
