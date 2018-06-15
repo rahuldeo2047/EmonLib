@@ -198,6 +198,8 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
     sqI = filteredI * filteredI;
     // 2) sum
     sumI += sqI;
+    //delay(1); // It can mess with the data
+    yield();
   }
 
   double I_RATIO = ICAL *((SupplyVoltage/1000.0) / (ADC_COUNTS));
