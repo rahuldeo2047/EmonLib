@@ -198,7 +198,9 @@ double EnergyMonitor::calcIrms(unsigned int Number_of_Samples)
     sqI = filteredI * filteredI;
     // 2) sum
     sumI += sqI;
-    //delay(1); // It can mess with the data
+
+    // https://github.com/esp8266/Arduino/issues/1634
+    delay(3); // It can mess with the data
     yield();
   }
 
